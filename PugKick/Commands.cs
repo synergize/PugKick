@@ -14,46 +14,77 @@ namespace PugKick
     public class Commands : ModuleBase<SocketCommandContext>
     {
 
-        [Command("roles")]
+        [Command("help")]
         public async Task Roles()
         {
-            List<ulong> roles = new List<ulong>();
-            List<ulong> memberIDs = new List<ulong>();
+            SocketGuild Guild = Context.Client.Guilds.Where(x => x.Id == Context.Guild.Id).FirstOrDefault();
+            EmbedBuilder Embed = new EmbedBuilder();
+            Embed.WithAuthor($"Mass User Kicking", Context.Guild.IconUrl);
+            Embed.AddField("Commands", "!kick \"Role Name\" Quotation marks are important is role has spaces in the name!", true);
 
-
-            var rolesFromGuild = Context.Guild.Roles.ToList();
-            var gUsers = Context.Guild.Users.ToList();
-            for (int i = 0; i < gUsers.Count; i++)
-            {
-                await ReplyAsync($"{gUsers[i]}");
-            }
+            await Context.Channel.SendMessageAsync("", false, Embed.Build());
         }
 
-            //for (int i = 0; i < Context.Guild.Roles.Count; i++)
-            //{
-            //    roles.Add(rolesFromGuild[i]);
-            //    memberIDs.Add(gUsers[i]);
-               
-            //}        }
 
-        [Command("userinfo"), Summary("Returns info about the current user, or the user parameter, if one passed.")]
-        [Alias("user", "whois")]
-        public async Task UserInfo([Summary("The (optional) user to get info for")] IUser user = null)
+    }
+    public class Kick : ModuleBase<SocketCommandContext>
+    {
+        [Command("kick")]
+        [RequireUserPermission(GuildPermission.KickMembers)]
+        [RequireBotPermission(GuildPermission.KickMembers)]
+        public async Task KickUser(string roleInput)
         {
-            var userInfo = user ?? Context.Client.CurrentUser;
-            await ReplyAsync($"{userInfo.Username}#{userInfo.Discriminator}");
-            await ReplyAsync($"{userInfo.Id}");
-
-            for (int i = 0; i < Context.Guild.Users.Count; i++)
+            var user = Context.User as SocketGuildUser;
+            var role = (user as IGuildUser).Guild.Roles.FirstOrDefault(x => x.Name == roleInput);
+            if (role == null)
             {
-                
+                await ReplyAsync("Please enter a valid role registered on the server.");
+                return;
             }
+            List<SocketGuildUser> SocketList = new List<SocketGuildUser>();
+
+            var xyz = Context.Guild.Users.ToList();
+            var listTest = xyz[0];
+            foreach (SocketGuildUser str in Context.Guild.Users)
+            {
+                SocketList.Add(str);
+            }
+                
+                for (int i = 0; i < SocketList.Count; i++)
+            {
+                var userName = xyz[i];
+                if (!userName.Roles.Contains(role))
+                {
+                    // Do Stuff
+                    if (user.GuildPermissions.KickMembers)
+                    {
+                        try
+                        {
+                            await userName.KickAsync();
+                        }
+                        catch (Exception ex)
+                        {
+                            await ReplyAsync(ex.Message);
+                        }
+                    }
+                    else
+                    {
+                        await ReplyAsync("User doesn't have permission to kick.");
+                    }
+
+                }
+
+
+            }
+
+
+            
         }
     }
 
 
-    
 
 
-    
+
+
 }
