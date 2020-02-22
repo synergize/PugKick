@@ -67,7 +67,7 @@ namespace PugKick
         }
         private async Task Client_Ready()
         {
-            await Client.SetGameAsync("Rock Paper Scissors Bot!", "https://discordapp.com/developers", StreamType.NotStreaming);
+            await Client.SetGameAsync("*snap*", "https://discordapp.com/developers", StreamType.NotStreaming);
         }
     }
     
